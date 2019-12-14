@@ -1,6 +1,7 @@
 //
-// divdiff version 1.0. These routines are introduced in the paper:
-// 
+// divdiff version 1.0. The routines are introduced in the paper:
+// L. Gupta, L. Barash, I. Hen, Calculating the divided differences of the exponential function by addition and removal of inputs
+//
 // This program is licensed under a Creative Commons Attribution 4.0 International License:
 // http://creativecommons.org/licenses/by/4.0/
 //
@@ -12,12 +13,12 @@
 
 double* invPowersOf2;
 
-class ld{
+class ExExFloat{
 private:
 	double mantissa;
 	int exponent;
 public:
-	ld(){	mantissa = 0.5; exponent = 1;}
+	ExExFloat(){	mantissa = 0.5; exponent = 1;}
 	void normalize(){ int tmp; mantissa = frexp(mantissa,&tmp); exponent += tmp;}
 	void init_expmu(double mu){ double e = mu*1.4426950408889634; exponent = ceil(e); mantissa = pow(2.,e - ceil(e)); }
 	void print(){
@@ -27,10 +28,10 @@ public:
 		exp10 = floor(exp10); if(m<1){ exp10--; m*=10; }
 		if((exp10<7)&&(exp10>-7)) printf("%.17f",m*pow(10,exp10)); else printf("%.17f*^%.0f",m,exp10);
 	}
-	ld operator =(ld const &obj){ mantissa = obj.mantissa; exponent = obj.exponent;	return *this;}
-	ld operator =(double const &obj){ mantissa = obj; exponent = 0; normalize(); return *this;}
-	ld operator +(ld const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
-		ld res;
+	ExExFloat operator =(ExExFloat const &obj){ mantissa = obj.mantissa; exponent = obj.exponent;	return *this;}
+	ExExFloat operator =(double const &obj){ mantissa = obj; exponent = 0; normalize(); return *this;}
+	ExExFloat operator +(ExExFloat const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
+		ExExFloat res;
 		if(obj.exponent >= exponent){
 			res.mantissa = obj.mantissa + mantissa*invPowersOf2[obj.exponent - exponent];
 			res.exponent = obj.exponent; res.normalize();
@@ -40,8 +41,8 @@ public:
 		}
 		return res;
 	}
-	ld operator -(ld const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
-		ld res;
+	ExExFloat operator -(ExExFloat const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
+		ExExFloat res;
 		if(obj.exponent >= exponent){
 			res.mantissa = mantissa*invPowersOf2[obj.exponent - exponent] - obj.mantissa;
 			res.exponent = obj.exponent; res.normalize();
@@ -51,7 +52,7 @@ public:
 		}
 		return res;
 	}
-	ld operator +=(ld const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
+	ExExFloat operator +=(ExExFloat const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
 		if(obj.exponent >= exponent){
 			mantissa = obj.mantissa + mantissa*invPowersOf2[obj.exponent - exponent];
 			exponent = obj.exponent; normalize();
@@ -61,7 +62,7 @@ public:
 		}
 		return *this;
 	}
-	ld operator -=(ld const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
+	ExExFloat operator -=(ExExFloat const &obj){ // important restriction: it is assumed here that each of the summands is not equal to zero
 		if(obj.exponent >= exponent){
 			mantissa = mantissa*invPowersOf2[obj.exponent - exponent] - obj.mantissa;
 			exponent = obj.exponent; normalize();
@@ -71,24 +72,24 @@ public:
 		}
 		return *this;
 	}
-	ld operator *(ld const &obj){
-		ld res;	res.mantissa = mantissa * obj.mantissa;	res.exponent = exponent + obj.exponent;
+	ExExFloat operator *(ExExFloat const &obj){
+		ExExFloat res;	res.mantissa = mantissa * obj.mantissa;	res.exponent = exponent + obj.exponent;
 		res.normalize(); return res;
 	}
-	ld operator /(ld const &obj){
-		ld res;	res.mantissa = mantissa / obj.mantissa;
+	ExExFloat operator /(ExExFloat const &obj){
+		ExExFloat res;	res.mantissa = mantissa / obj.mantissa;
 		res.exponent = exponent - obj.exponent;	res.normalize(); return res;
 	}
-	ld operator *(double const &obj){ ld res; res.mantissa = mantissa * obj; res.exponent = exponent; res.normalize(); return res; }
-	ld operator /(double const &obj){ ld res; res.mantissa = mantissa / obj; res.exponent = exponent; res.normalize(); return res; }
-	ld operator *=(ld const &obj){ mantissa *= obj.mantissa; exponent += obj.exponent; normalize(); return *this;}
-	ld operator /=(ld const &obj){ mantissa /= obj.mantissa; exponent -= obj.exponent; normalize(); return *this;}
-	ld operator *=(double const &obj){ mantissa *= obj; normalize(); return *this;}
-	ld operator /=(double const &obj){ mantissa /= obj; normalize(); return *this;}
+	ExExFloat operator *(double const &obj){ ExExFloat res; res.mantissa = mantissa * obj; res.exponent = exponent; res.normalize(); return res; }
+	ExExFloat operator /(double const &obj){ ExExFloat res; res.mantissa = mantissa / obj; res.exponent = exponent; res.normalize(); return res; }
+	ExExFloat operator *=(ExExFloat const &obj){ mantissa *= obj.mantissa; exponent += obj.exponent; normalize(); return *this;}
+	ExExFloat operator /=(ExExFloat const &obj){ mantissa /= obj.mantissa; exponent -= obj.exponent; normalize(); return *this;}
+	ExExFloat operator *=(double const &obj){ mantissa *= obj; normalize(); return *this;}
+	ExExFloat operator /=(double const &obj){ mantissa /= obj; normalize(); return *this;}
 	int operator >=(double const &r){ // important restriction: it is assumed here that both values of mantissa are not negative
 		if(r == 0) return (mantissa >= 0);
 		else{
-			ld R; R = r;
+			ExExFloat R; R = r;
 			if(exponent > R.exponent ) return 1;
 			else if((exponent == R.exponent)&&(mantissa >= R.mantissa)) return 1;
 			else return 0;
@@ -101,11 +102,11 @@ int extralen = 30;
 
 int maxexp = 100000;
 
-double *z, *z2; ld *h, *ddd, *divdiff; 
-int CurrentLength; int s; double mu; ld expmu;
+double *z, *z2; ExExFloat *h, *ddd, *divdiff; 
+int CurrentLength; int s; double mu; ExExFloat expmu;
 int maxlen = 10001; int smax = 500;
 
-void PrintList(ld* list, int len, const char* namelist){
+void PrintList(ExExFloat* list, int len, const char* namelist){
 	int i,flag=1;
 	printf("%s={",namelist);
 	for(i=0;i<len;i++){
@@ -127,8 +128,8 @@ void Backupz(int len){ z2 = new double[maxlen]; memcpy(z2,z,maxlen*sizeof(double
 void Restorez(int len){ memcpy(z,z2,maxlen*sizeof(double)); delete[] z2;}
 
 void AllocateMem(){
-	z = new double[maxlen]; h = new ld[maxlen+extralen+1];
-	divdiff = new ld[maxlen+extralen+1]; ddd = new ld[maxlen*smax];
+	z = new double[maxlen]; h = new ExExFloat[maxlen+extralen+1];
+	divdiff = new ExExFloat[maxlen+extralen+1]; ddd = new ExExFloat[maxlen*smax];
 	CurrentLength = 0; s = 1;
 }
 
@@ -166,7 +167,7 @@ int s_changed(double znew = z[CurrentLength-1]){
 void AddAll(int len, int force_s);
 
 void AddElement(double znew, int force_s = 0, double force_mu = 0){
-	int j,k,n,l,N; ld curr; n = CurrentLength; l = n + 1; N = maxlen+extralen; z[n] = znew; CurrentLength++;
+	int j,k,n,l,N; ExExFloat curr; n = CurrentLength; l = n + 1; N = maxlen+extralen; z[n] = znew; CurrentLength++;
 	if(CurrentLength==1){
 		s = (force_s == 0) ? 1 : force_s;
 		mu = (force_mu == 0) ? z[0] : force_mu;
@@ -207,8 +208,7 @@ void AddAll(int len, int force_s = 0){ // input is taken from z, output is writt
 		AllocateMem(); Restorez(i);
 	}
 	AddElement(z[0],s,mean(z,len));
-	for(i=1;i<len;i++) AddElement(z[i]);
-	// calculates the vector (d[z_0], 1! d[z_0,z_1], ..., n! d[z_0,z_1,...,z_n]).
+	for(i=1;i<len;i++) AddElement(z[i]); // calculates the vector (d[z_0], 1! d[z_0,z_1], ..., n! d[z_0,z_1,...,z_n]).
 }
 
 int main(){
