@@ -124,8 +124,8 @@ void PrintList(double* list, int len, const char* namelist){
 	}
 }
 
-void Backupz(int len){ z2 = new double[maxlen]; memcpy(z2,z,maxlen*sizeof(double));}
-void Restorez(int len){ memcpy(z,z2,maxlen*sizeof(double)); delete[] z2;}
+void Backupz(int len){ z2 = new double[len]; memcpy(z2,z,len*sizeof(double));}
+void Restorez(int len){ memcpy(z,z2,len*sizeof(double)); delete[] z2;}
 
 void AllocateMem(){
 	z = new double[maxlen]; h = new ExExFloat[maxlen+extralen+1];
