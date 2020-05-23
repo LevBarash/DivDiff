@@ -1,6 +1,8 @@
 //
-// divdiff version 1.0. The routines are introduced in the paper:
-// L. Gupta, L. Barash, I. Hen, Calculating the divided differences of the exponential function by addition and removal of inputs
+// divdiff version 1.0. Complile with C++11. 
+//
+// The routines are introduced in the paper:
+// L. Gupta, L. Barash, I. Hen, Calculating the divided differences of the exponential function by addition and removal of inputs, Computer Physics Communications 254, 107385 (2020)
 //
 // This program is licensed under a Creative Commons Attribution 4.0 International License:
 // http://creativecommons.org/licenses/by/4.0/
